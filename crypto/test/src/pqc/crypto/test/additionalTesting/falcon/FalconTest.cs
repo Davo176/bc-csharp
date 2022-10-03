@@ -55,8 +55,7 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
             // Sign
             FalconSigner signer = new FalconSigner();
-            /*FalconPrivateKeyParameters skparam = new FalconPrivateKeyParameters(parameters, expectedSK);
-            ParametersWithRandom skwrand = new ParametersWithRandom(skparam, random);
+            ParametersWithRandom skwrand = new ParametersWithRandom(keyPair.Private, random);
             signer.Init(true, skwrand);
             byte[] sig = signer.GenerateSignature(msg);
             byte[] ressm = new byte[2 + msg.Length + sig.Length - 1];
@@ -68,7 +67,7 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
             // Verify
             FalconSigner verifier = new FalconSigner();
-            FalconPublicKeyParameters pkparam = new FalconPublicKeyParameters(parameters, expectedPK);
+            FalconPublicKeyParameters pkparam = (FalconPublicKeyParameters)keyPair.Public;
             verifier.Init(false, pkparam);
             byte[] noncesig = new byte[expectedSMLEN - m_len - 2 + 1];
             noncesig[0] = (byte)(0x30 + parameters.LogN);
@@ -80,13 +79,13 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
             // Assert.True
             //keyGenerator
-            Assert.True(Arrays.AreEqual(publicKeyParams.GetEncoded(), expectedPK), name + " " + count + " public key");
-            Assert.True(Arrays.AreEqual(privateKeyParams.GetEncoded(), expectedSK), name + " " + count + " private key");
+            Assert.True(Arrays.AreEqual(publicKeyParams.GetEncoded(),0,publicKeyParams.GetEncoded().Length, expectedPK,1,expectedPK.Length), name + " " + count + " public key");
+            Assert.True(Arrays.AreEqual(privateKeyParams.GetEncoded(),0,privateKeyParams.GetEncoded().Length, expectedSK,1,expectedSK.Length), name + " " + count + " private key");
             //sign
             Assert.True(Arrays.AreEqual(ressm, expectedSM), name + " " + count + " signature");
             //verify
             Assert.True(vrfyrespass, name + " " + count + " verify failed when should pass");
-            Assert.False(vrfyresfail, name + " " + count + " verify passed when should fail");*/
+            Assert.False(vrfyresfail, name + " " + count + " verify passed when should fail");
         }
 
         public static void RunTest(string name,string partialLocation, Action<string,Dictionary<string,string>,Dictionary<string,FalconParameters>> testFunc,Dictionary<string,FalconParameters> parameters)

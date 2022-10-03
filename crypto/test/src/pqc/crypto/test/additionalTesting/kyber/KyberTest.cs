@@ -96,16 +96,14 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             NistSecureRandom random = new NistSecureRandom(seed, null);
             KyberParameters parameters = paramDict[name];
 
-            /*KyberPrivateKeyParameters privateKeyParams = new KyberPrivateKeyParameters(parameters,expectedSK);
+            KyberPrivateKeyParameters privateKeyParams = new KyberPrivateKeyParameters(parameters,expectedSK);
 
             // KEM Dec
             KyberKemExtractor decapsulator = new KyberKemExtractor(privateKeyParams);
 
             byte[] decapsulatedSecret = decapsulator.ExtractSecret(expectedCT);
 
-            Assert.AreEqual(decapsulatedSecret.Length * 8, parameters.SessionKeySize);
-            Assert.True(Arrays.AreEqual(decapsulatedSecret, 0, decapsulatedSecret.Length, expectedSS, 0, decapsulatedSecret.Length),"FAILED session dec: " + name + " " + count);
-            */
+            Assert.True(Arrays.AreEqual(decapsulatedSecret, 0, decapsulatedSecret.Length, expectedSS, 0, decapsulatedSecret.Length),"FAILED session dec: " + name + " " + count);            
         }
 
         private static void FullTests(string name, IDictionary<string, string> buf,Dictionary<string, KyberParameters> paramDict)
@@ -142,16 +140,12 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
             byte[] decapsulatedSecret = decapsulator.ExtractSecret(generatedCipher);
 
-            Console.WriteLine(Hex.ToHexString(expectedSS));
-            Console.WriteLine(Hex.ToHexString(secret));
-
             Assert.True(Arrays.AreEqual(expectedPK,  publicKeyParams.GetEncoded()),                "FAILED public key: " + name + " " + count);
             Assert.True(Arrays.AreEqual(expectedSK, privateKeyParams.GetEncoded()),                "FAILED secret key: " + name + " " + count);
 
             Assert.True(Arrays.AreEqual(expectedCT, generatedCipher),                        "FAILED cipher enc: " + name + " " + count);
             Assert.True(Arrays.AreEqual(expectedSS, 0, secret.Length, secret, 0, secret.Length),   "FAILED session enc: " + name + " " + count);
 
-            Assert.AreEqual(decapsulatedSecret.Length * 8, parameters.SessionKeySize);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, 0, decapsulatedSecret.Length, expectedSS, 0, decapsulatedSecret.Length),"FAILED session dec: " + name + " " + count);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, secret),                                          "FAILED session int: " + name + " " + count);
         }
