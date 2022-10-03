@@ -21,14 +21,14 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         private static readonly Dictionary<string, SPHINCSPlusParameters> fullTestVectorsRobustFast = new Dictionary<string, SPHINCSPlusParameters>()
         {
             { "subset_sha2-128f-robust.rsp", SPHINCSPlusParameters.sha2_128f },
-            // { "subset_sha2-192f-robust.rsp", SPHINCSPlusParameters.sha2_192f },
-            // { "subset_sha2-256f-robust.rsp", SPHINCSPlusParameters.sha2_256f },
-            // { "subset_shake-128f-robust.rsp", SPHINCSPlusParameters.shake_128f },
-            // { "subset_shake-192f-robust.rsp", SPHINCSPlusParameters.shake_192f },
-            // { "subset_shake-256f-robust.rsp", SPHINCSPlusParameters.shake_256f },
-            // { "subset_haraka-128f-robust.rsp", SPHINCSPlusParameters.haraka_128f },
-            // { "subset_haraka-192f-robust.rsp", SPHINCSPlusParameters.haraka_192f },
-            // { "subset_haraka-256f-robust.rsp", SPHINCSPlusParameters.haraka_256f },
+            { "subset_sha2-192f-robust.rsp", SPHINCSPlusParameters.sha2_192f },
+            { "subset_sha2-256f-robust.rsp", SPHINCSPlusParameters.sha2_256f },
+            { "subset_shake-128f-robust.rsp", SPHINCSPlusParameters.shake_128f },
+            { "subset_shake-192f-robust.rsp", SPHINCSPlusParameters.shake_192f },
+            { "subset_shake-256f-robust.rsp", SPHINCSPlusParameters.shake_256f },
+            { "subset_haraka-128f-robust.rsp", SPHINCSPlusParameters.haraka_128f },
+            { "subset_haraka-192f-robust.rsp", SPHINCSPlusParameters.haraka_192f },
+            { "subset_haraka-256f-robust.rsp", SPHINCSPlusParameters.haraka_256f },
         };
         private static readonly List<string> fullTestVectorFileNamesRobustFast = new List<string>(fullTestVectorsRobustFast.Keys);
 
@@ -130,12 +130,67 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> addRandTestVectorFileNamesSimpleSlow = new List<string>(addRandTestVectorsSimpleSlow.Keys);
 
+        private static readonly Dictionary<string, SPHINCSPlusParameters> addSignTestVectorsRobustFast = new Dictionary<string, SPHINCSPlusParameters>()
+        {
+            { "sha-128f-r.rsp", SPHINCSPlusParameters.sha2_128f },
+            { "sha-192f-r.rsp", SPHINCSPlusParameters.sha2_192f },
+            { "sha-256f-r.rsp", SPHINCSPlusParameters.sha2_256f },
+            { "shake-128f-r.rsp", SPHINCSPlusParameters.shake_128f },
+            { "shake-192f-r.rsp", SPHINCSPlusParameters.shake_192f },
+            { "shake-256f-r.rsp", SPHINCSPlusParameters.shake_256f },
+            { "haraka-128f-r.rsp", SPHINCSPlusParameters.haraka_128f },
+            { "haraka-192f-r.rsp", SPHINCSPlusParameters.haraka_192f },
+            { "haraka-256f-r.rsp", SPHINCSPlusParameters.haraka_256f },
+        };
+        private static readonly List<string> addSignTestVectorFileNamesRobustFast = new List<string>(addSignTestVectorsRobustFast.Keys);
+
+        private static readonly Dictionary<string, SPHINCSPlusParameters> addSignTestVectorsRobustSlow = new Dictionary<string, SPHINCSPlusParameters>()
+        {
+            { "sha-128s-r.rsp", SPHINCSPlusParameters.sha2_128s },
+            { "sha-192s-r.rsp", SPHINCSPlusParameters.sha2_192s },
+            { "sha-256s-r.rsp", SPHINCSPlusParameters.sha2_256s },
+            { "shake-128s-r.rsp", SPHINCSPlusParameters.shake_128s },
+            { "shake-192s-r.rsp", SPHINCSPlusParameters.shake_192s },
+            { "shake-256s-r.rsp", SPHINCSPlusParameters.shake_256s },
+            { "haraka-128s-r.rsp", SPHINCSPlusParameters.haraka_128s },
+            { "haraka-192s-r.rsp", SPHINCSPlusParameters.haraka_192s },
+            { "haraka-256s-r.rsp", SPHINCSPlusParameters.haraka_256s },
+        };
+        private static readonly List<string> addSignTestVectorFileNamesRobustSlow = new List<string>(addSignTestVectorsRobustSlow.Keys);
+
+        private static readonly Dictionary<string, SPHINCSPlusParameters> addSignTestVectorsSimpleFast = new Dictionary<string, SPHINCSPlusParameters>()
+        {
+            { "sha-128f-s.rsp", SPHINCSPlusParameters.sha2_128f_simple },
+            { "sha2-192f-s.rsp", SPHINCSPlusParameters.sha2_192f_simple },
+            { "sha2-256f-s.rsp", SPHINCSPlusParameters.sha2_256f_simple },
+            { "shake-128f-s.rsp", SPHINCSPlusParameters.shake_128f_simple },
+            { "shake-192f-s.rsp", SPHINCSPlusParameters.shake_192f_simple },
+            { "shake-256f-s.rsp", SPHINCSPlusParameters.shake_256f_simple },
+            { "haraka-128f-s.rsp", SPHINCSPlusParameters.haraka_128f_simple },
+            { "haraka-192f-s.rsp", SPHINCSPlusParameters.haraka_192f_simple },
+            { "haraka-256f-s.rsp", SPHINCSPlusParameters.haraka_256f_simple },
+        };
+        private static readonly List<string> addSignTestVectorFileNamesSimpleFast = new List<string>(addSignTestVectorsSimpleFast.Keys);
+
+        private static readonly Dictionary<string, SPHINCSPlusParameters> addSignTestVectorsSimpleSlow = new Dictionary<string, SPHINCSPlusParameters>()
+        {
+            { "sha-128s-s.rsp", SPHINCSPlusParameters.sha2_128s_simple },
+            { "sha-192s-s.rsp", SPHINCSPlusParameters.sha2_192s_simple },
+            { "sha-256s-s.rsp", SPHINCSPlusParameters.sha2_256s_simple },
+            { "shake-128s-s.rsp", SPHINCSPlusParameters.shake_128s_simple },
+            { "shake-192s-s.rsp", SPHINCSPlusParameters.shake_192s_simple },
+            { "shake-256s-s.rsp", SPHINCSPlusParameters.shake_256s_simple },
+            { "haraka-128s-s.rsp", SPHINCSPlusParameters.haraka_128s_simple },
+            { "haraka-192s-s.rsp", SPHINCSPlusParameters.haraka_192s_simple },
+            { "haraka-256s-s.rsp", SPHINCSPlusParameters.haraka_256s_simple },
+        };
+        private static readonly List<string> addSignTestVectorFileNamesSimpleSlow = new List<string>(addSignTestVectorsSimpleSlow.Keys);
 
         [TestCaseSource(nameof(fullTestVectorFileNamesRobustFast))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullRobustFastVectors(string testVectorFile)
         {
-            RunTest(testVectorFile,"pqc.sphincsplus.",FullTestsRandom,fullTestVectorsRobustFast);
+            RunTest(testVectorFile,"pqc.sphincsplus.",FullTests,fullTestVectorsRobustFast);
         }
 
         [TestCaseSource(nameof(fullTestVectorFileNamesRobustSlow))]
@@ -211,7 +266,6 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
             SPHINCSPlusPublicKeyParameters publicKeyParams = (SPHINCSPlusPublicKeyParameters)kp.Public;
             SPHINCSPlusPrivateKeyParameters privateKeyParams = (SPHINCSPlusPrivateKeyParameters)kp.Private;
-            Console.WriteLine(Hex.ToHexString(publicKeyParams.GetEncoded()));
 
             Assert.True(Arrays.AreEqual(Arrays.Concatenate(publicKeyParams.GetParameters().GetEncoded(), expectedPK), publicKeyParams.GetEncoded()), name + " " + count + ": public key");
             Assert.True(Arrays.AreEqual(Arrays.Concatenate(privateKeyParams.GetParameters().GetEncoded(), sk), privateKeyParams.GetEncoded()), name + " " + count + ": secret key");
@@ -235,7 +289,8 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             Assert.True(Arrays.AreEqual(sigExpected, attachedSig), name + " " + count + ": signature gen match");
         }
 
-        private static void FullTestsRandom(string name, IDictionary<string, string> buf,Dictionary<string, SPHINCSPlusParameters> paramDict)
+        //How I would expect it to work - doesnt work with SHA or SHAKE but works with Haraka
+        private static void FullTestsNISTRandom(string name, IDictionary<string, string> buf,Dictionary<string, SPHINCSPlusParameters> paramDict)
         {
             string count = buf["count"];
             byte[] seed = Hex.Decode(buf["seed"]);
@@ -259,12 +314,6 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             SPHINCSPlusPublicKeyParameters publicKeyParams = (SPHINCSPlusPublicKeyParameters)keyPair.Public;
             SPHINCSPlusPrivateKeyParameters privateKeyParams = (SPHINCSPlusPrivateKeyParameters)keyPair.Private;
 
-
-            Console.WriteLine(Hex.ToHexString(Arrays.Concatenate(publicKeyParams.GetParameters().GetEncoded(), expectedPK)));
-            Console.WriteLine(Hex.ToHexString(publicKeyParams.GetEncoded()));
-            // Assert.True(Arrays.AreEqual(Arrays.Concatenate(publicKeyParams.GetParameters().GetEncoded(), expectedPK), publicKeyParams.GetEncoded()), name + " " + count + ": public key");
-            // Assert.True(Arrays.AreEqual(Arrays.Concatenate(privateKeyParams.GetParameters().GetEncoded(), sk), privateKeyParams.GetEncoded()), name + " " + count + ": secret key");
-
             //
             // Signature test
             //
@@ -277,10 +326,12 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             byte[] sigGenerated = signer.GenerateSignature(msg);
             byte[] attachedSig = Arrays.Concatenate(sigGenerated, msg);
 
-
             signer.Init(false, publicKeyParams);
 
-            //Assert.True(Arrays.AreEqual(sigExpected, attachedSig), name + " " + count + ": signature gen match");
+            Assert.True(Arrays.AreEqual(Arrays.Concatenate(publicKeyParams.GetParameters().GetEncoded(), expectedPK), publicKeyParams.GetEncoded()), name + " " + count + ": public key");
+            Assert.True(Arrays.AreEqual(Arrays.Concatenate(privateKeyParams.GetParameters().GetEncoded(), sk), privateKeyParams.GetEncoded()), name + " " + count + ": secret key");
+
+            Assert.True(Arrays.AreEqual(sigExpected, attachedSig), name + " " + count + ": signature gen match");
             Assert.True(signer.VerifySignature(msg, sigGenerated), name + " " + count + ": signature verify");
         }
 
