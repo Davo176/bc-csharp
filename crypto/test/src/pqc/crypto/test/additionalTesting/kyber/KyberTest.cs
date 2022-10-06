@@ -16,13 +16,13 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
     [TestFixture]
     public class KyberTest
     {
-        private static readonly Dictionary<string, KyberParameters> fullTestVectors = new Dictionary<string, KyberParameters>()
+        private static readonly Dictionary<string, KyberParameters> addRandVectors = new Dictionary<string, KyberParameters>()
         {
-            //{ "kyber512.rsp", KyberParameters.kyber512 },
-            // { "kyber768.rsp", KyberParameters.kyber768 },
-             { "kyber1024.rsp", KyberParameters.kyber1024 }
+             { "addRand_1632.rsp", KyberParameters.kyber512 },
+             { "addRand_2400.rsp", KyberParameters.kyber768 },
+             { "addRand_3168.rsp", KyberParameters.kyber1024 }
         };
-        private static readonly List<string> fullTestVectorFileNames = new List<string>(fullTestVectors.Keys);
+        private static readonly List<string> addRandVectorsFileNames = new List<string>(addRandVectors.Keys);
 
         private static readonly Dictionary<string, KyberParameters> encapTestVectors = new Dictionary<string, KyberParameters>()
         {
@@ -42,11 +42,11 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
         private static readonly List<string> decapTestVectorFileNames = new List<string>(decapTestVectors.Keys);
 
-        [TestCaseSource(nameof(fullTestVectorFileNames))]
+        [TestCaseSource(nameof(addRandVectorsFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
         {
-            RunTest(testVectorFile,"pqc.crystals.kyber.",FullTests,fullTestVectors);
+            RunTest(testVectorFile,"pqc.crystals.kyber.addRand.",FullTests,addRandVectors);
         }
 
         [TestCaseSource(nameof(encapTestVectorFileNames))]

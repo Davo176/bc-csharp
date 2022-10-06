@@ -16,16 +16,16 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
     [TestFixture]
     public class SNTRUPrimeTest
     {
-        private static readonly Dictionary<string, SNtruPrimeParameters> SNtrufullTestVectors = new Dictionary<string, SNtruPrimeParameters>()
+        private static readonly Dictionary<string, SNtruPrimeParameters> SNtruaddRandTestVectors = new Dictionary<string, SNtruPrimeParameters>()
         {
-            { "kat_kem_sntrup_653.rsp", SNtruPrimeParameters.sntrup653 },
-            { "kat_kem_sntrup_761.rsp", SNtruPrimeParameters.sntrup761 },
-            { "kat_kem_sntrup_857.rsp", SNtruPrimeParameters.sntrup857 },
-            { "kat_kem_sntrup_953.rsp", SNtruPrimeParameters.sntrup953 },
-            { "kat_kem_sntrup_1013.rsp", SNtruPrimeParameters.sntrup1013 },
-            { "kat_kem_sntrup_1277.rsp", SNtruPrimeParameters.sntrup1277 },
+            { "addRand653.rsp", SNtruPrimeParameters.sntrup653 },
+            { "addRand761.rsp", SNtruPrimeParameters.sntrup761 },
+            { "addRand857.rsp", SNtruPrimeParameters.sntrup857 },
+            { "addRand953.rsp", SNtruPrimeParameters.sntrup953 },
+            { "addRand1013.rsp", SNtruPrimeParameters.sntrup1013 },
+            { "addRand1277.rsp", SNtruPrimeParameters.sntrup1277 },
         };
-        private static readonly List<string> SNtrufullTestVectorFileNames = new List<string>(SNtrufullTestVectors.Keys);
+        private static readonly List<string> SNtruaddRandTestVectorFileNames = new List<string>(SNtruaddRandTestVectors.Keys);
 
         private static readonly Dictionary<string, SNtruPrimeParameters> SNtruEncapTestVectors = new Dictionary<string, SNtruPrimeParameters>()
         {
@@ -49,11 +49,11 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> SNtruDecapTestVectorFileNames = new List<string>(SNtruDecapTestVectors.Keys);
 
-        [TestCaseSource(nameof(SNtrufullTestVectorFileNames))]
+        [TestCaseSource(nameof(SNtruaddRandTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
         {
-            RunTest(testVectorFile,"pqc.ntruprime.",SNtruFullTests,SNtrufullTestVectors);
+            RunTest(testVectorFile,"pqc.ntruprime.addRand.sntru.",SNtruFullTests,SNtruaddRandTestVectors);
         }
 
         [TestCaseSource(nameof(SNtruEncapTestVectorFileNames))]

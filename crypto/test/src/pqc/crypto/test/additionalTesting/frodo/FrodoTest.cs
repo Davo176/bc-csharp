@@ -32,6 +32,9 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             { "addRandTest_19888.rsp", FrodoParameters.frodokem19888r3 },
             { "addRandTest_31296.rsp", FrodoParameters.frodokem31296r3 },
             { "addRandTest_43088.rsp", FrodoParameters.frodokem43088r3 },
+            { "addRandTest_shake_19888.rsp", FrodoParameters.frodokem19888shaker3 },
+            { "addRandTest_shake_31296.rsp", FrodoParameters.frodokem31296shaker3 },
+            { "addRandTest_shake_43088.rsp", FrodoParameters.frodokem43088shaker3 },
         };
         private static readonly List<string> addRandTestVectorFileNames = new List<string>(addRandTestVectors.Keys);
 
@@ -40,6 +43,9 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             { "additionalEncaps_19888.rsp", FrodoParameters.frodokem19888r3 },
             { "additionalEncaps_31296.rsp", FrodoParameters.frodokem31296r3 },
             { "additionalEncaps_43088.rsp", FrodoParameters.frodokem43088r3 },
+            { "additionalEncaps_shake_19888.rsp", FrodoParameters.frodokem19888shaker3 },
+            { "additionalEncaps_shake_31296.rsp", FrodoParameters.frodokem31296shaker3 },
+            { "additionalEncaps_shake_43088.rsp", FrodoParameters.frodokem43088shaker3 },
         };
         private static readonly List<string> addEncapsTestVectorFileNames = new List<string>(addEncapsTestVectors.Keys);
 
@@ -48,6 +54,9 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             { "addDecapsTest_19888.rsp", FrodoParameters.frodokem19888r3 },
             { "addDecapsTest_31296.rsp", FrodoParameters.frodokem31296r3 },
             { "addDecapsTest_43088.rsp", FrodoParameters.frodokem43088r3 },
+            { "addDecapsTest_shake_19888.rsp", FrodoParameters.frodokem19888shaker3 },
+            { "addDecapsTest_shake_31296.rsp", FrodoParameters.frodokem31296shaker3 },
+            { "addDecapsTest_shake_43088.rsp", FrodoParameters.frodokem43088shaker3 },
         };
         private static readonly List<string> addDecapsTestVectorFileNames = new List<string>(addDecapsTestVectors.Keys);
 

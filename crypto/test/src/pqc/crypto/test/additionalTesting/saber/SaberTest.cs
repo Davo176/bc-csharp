@@ -16,13 +16,13 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
     [TestFixture]
     public class SaberTest
     {
-        private static readonly Dictionary<string, SABERParameters> fullTestVectors = new Dictionary<string, SABERParameters>()
+        private static readonly Dictionary<string, SABERParameters> addRandTestVectors = new Dictionary<string, SABERParameters>()
         {
-            { "lightsaber.rsp", SABERParameters.lightsaberkem256r3 },
-            { "saber.rsp", SABERParameters.saberkem256r3 },
-            { "firesaber.rsp", SABERParameters.firesaberkem256r3 }
+            { "addRand_1568.rsp", SABERParameters.lightsaberkem256r3 },
+            { "addRand_2304.rsp", SABERParameters.saberkem256r3 },
+            { "addRand_3040.rsp", SABERParameters.firesaberkem256r3 }
         };
-        private static readonly List<string> fullTestVectorFileNames = new List<string>(fullTestVectors.Keys);
+        private static readonly List<string> fullTestVectorFileNames = new List<string>(addRandTestVectors.Keys);
 
         private static readonly Dictionary<string, SABERParameters> encapTestVectors = new Dictionary<string, SABERParameters>()
         {
@@ -31,7 +31,6 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             { "additionalEncapTesting_3040.rsp", SABERParameters.firesaberkem256r3 }
         };
         private static readonly List<string> encapTestVectorFileNames = new List<string>(encapTestVectors.Keys);
-
         
         private static readonly Dictionary<string, SABERParameters> decapTestVectors = new Dictionary<string, SABERParameters>()
         {
@@ -45,7 +44,7 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string TestVectorFile)
         {
-            RunTest(TestVectorFile,"pqc.saber.",FullTests,fullTestVectors);
+            RunTest(TestVectorFile,"pqc.saber.randTesting.",FullTests,addRandTestVectors);
         }
 
         [TestCaseSource(nameof(encapTestVectorFileNames))]

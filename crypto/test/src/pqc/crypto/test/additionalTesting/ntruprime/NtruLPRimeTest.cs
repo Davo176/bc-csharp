@@ -16,16 +16,16 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
     [TestFixture]
     public class NTRULPrimeTest
     {
-        private static readonly Dictionary<string, NtruLPRimeParameters> LPRfullTestVectors = new Dictionary<string, NtruLPRimeParameters>()
+        private static readonly Dictionary<string, NtruLPRimeParameters> LPRaddRandTestVectors = new Dictionary<string, NtruLPRimeParameters>()
         {
-            { "kat_kem_ntrulp_653.rsp", NtruLPRimeParameters.ntrulpr653 },
-            { "kat_kem_ntrulp_761.rsp", NtruLPRimeParameters.ntrulpr761 },
-            { "kat_kem_ntrulp_857.rsp", NtruLPRimeParameters.ntrulpr857 },
-            { "kat_kem_ntrulp_953.rsp", NtruLPRimeParameters.ntrulpr953 },
-            { "kat_kem_ntrulp_1013.rsp", NtruLPRimeParameters.ntrulpr1013 },
-            { "kat_kem_ntrulp_1277.rsp", NtruLPRimeParameters.ntrulpr1277 },
+            { "addRand653.rsp", NtruLPRimeParameters.ntrulpr653 },
+            { "addRand761.rsp", NtruLPRimeParameters.ntrulpr761 },
+            { "addRand857.rsp", NtruLPRimeParameters.ntrulpr857 },
+            { "addRand953.rsp", NtruLPRimeParameters.ntrulpr953 },
+            { "addRand1013.rsp", NtruLPRimeParameters.ntrulpr1013 },
+            { "addRand1277.rsp", NtruLPRimeParameters.ntrulpr1277 }, //fail (error caused by HEX?)
         };
-        private static readonly List<string> LPRfullTestVectorFileNames = new List<string>(LPRfullTestVectors.Keys);
+        private static readonly List<string> LPRaddRandTestVectorFileNames = new List<string>(LPRaddRandTestVectors.Keys);
 
         private static readonly Dictionary<string, NtruLPRimeParameters> LPREncapTestVectors = new Dictionary<string, NtruLPRimeParameters>()
         {
@@ -49,11 +49,11 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> LPRDecapTestVectorFileNames = new List<string>(LPRDecapTestVectors.Keys);
 
-        [TestCaseSource(nameof(LPRfullTestVectorFileNames))]
+        [TestCaseSource(nameof(LPRaddRandTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
         {
-            RunTest(testVectorFile,"pqc.ntruprime.",LPRFullTests,LPRfullTestVectors);
+            RunTest(testVectorFile,"pqc.ntruprime.addRand.ntrulpr.",LPRFullTests,LPRaddRandTestVectors);
         }
 
         [TestCaseSource(nameof(LPREncapTestVectorFileNames))]

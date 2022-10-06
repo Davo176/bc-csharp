@@ -16,13 +16,13 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
     [TestFixture]
     public class DilithiumTest
     {
-        private static readonly Dictionary<string, DilithiumParameters> fullTestVectors = new Dictionary<string, DilithiumParameters>()
+        private static readonly Dictionary<string, DilithiumParameters> addRandTestVectors = new Dictionary<string, DilithiumParameters>()
         {
-            { "PQCsignKAT_Dilithium2.rsp", DilithiumParameters.Dilithium2 },
-            { "PQCsignKAT_Dilithium3.rsp", DilithiumParameters.Dilithium3 },
-            { "PQCsignKAT_Dilithium5.rsp", DilithiumParameters.Dilithium5 }
+            { "addRand_Dilithium2.rsp", DilithiumParameters.Dilithium2 },
+            { "addRand_Dilithium3.rsp", DilithiumParameters.Dilithium3 },
+            { "addRand_Dilithium5.rsp", DilithiumParameters.Dilithium5 }
         };
-        private static readonly List<string> fullTestVectorFileNames = new List<string>(fullTestVectors.Keys);
+        private static readonly List<string> addRandTestVectorFileNames = new List<string>(addRandTestVectors.Keys);
 
         private static readonly Dictionary<string, DilithiumParameters> signTestVectors = new Dictionary<string, DilithiumParameters>()
         {
@@ -33,11 +33,11 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
         private static readonly List<string> signTestVectorFileNames = new List<string>(signTestVectors.Keys);
 
-        [TestCaseSource(nameof(fullTestVectorFileNames))]
+        [TestCaseSource(nameof(addRandTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
         {
-            RunTest(testVectorFile,"pqc.crystals.dilithium.",FullTests,fullTestVectors);
+            RunTest(testVectorFile,"pqc.crystals.dilithium.addRand.",FullTests,addRandTestVectors);
         }
 
         [TestCaseSource(nameof(signTestVectorFileNames))]

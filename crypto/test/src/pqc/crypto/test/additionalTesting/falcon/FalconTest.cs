@@ -17,18 +17,18 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
     [TestFixture]
     public class FalconTests
     {
-        private static readonly Dictionary<string, FalconParameters> fullTestVectors = new Dictionary<string, FalconParameters>()
+        private static readonly Dictionary<string, FalconParameters> addRandVectors = new Dictionary<string, FalconParameters>()
         {
-            { "falcon512-KAT.rsp", FalconParameters.falcon_512 },
-            { "falcon1024-KAT.rsp", FalconParameters.falcon_1024 },
+            { "falcon512-Rand.rsp", FalconParameters.falcon_512 },
+            { "falcon1024-Rand.rsp", FalconParameters.falcon_1024 },
         };
-        private static readonly List<string> fullTestVectorFileNames = new List<string>(fullTestVectors.Keys);
+        private static readonly List<string> addRandVectorsFileNames = new List<string>(addRandVectors.Keys);
 
-        [TestCaseSource(nameof(fullTestVectorFileNames))]
+        [TestCaseSource(nameof(addRandVectorsFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
         {
-            RunTest(testVectorFile,"pqc.falcon.",FullTests,fullTestVectors);
+            RunTest(testVectorFile,"pqc.falcon.addRand.",FullTests,addRandVectors);
         }
 
         private static void FullTests(string name, IDictionary<string, string> buf,Dictionary<string, FalconParameters> paramDict)
