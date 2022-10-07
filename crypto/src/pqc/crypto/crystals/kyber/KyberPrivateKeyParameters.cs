@@ -1,4 +1,5 @@
 using Org.BouncyCastle.Utilities;
+using System;
 
 namespace Org.BouncyCastle.Pqc.Crypto.Crystals.Kyber
 {
@@ -20,6 +21,23 @@ namespace Org.BouncyCastle.Pqc.Crypto.Crystals.Kyber
             m_t = Arrays.Clone(t);
             m_rho = Arrays.Clone(rho);
         }
+        public KyberPrivateKeyParameters(KyberParameters parameters, byte[] sk)
+            : base(true, parameters)
+        {
+            KyberEngine engine= parameters.Engine;
+            int sLength = engine.IndCpaSecretKeyBytes;
+            int hpkLength = 32;
+            int nonceLength = KyberEngine.SymBytes;
+            int tLength = engine.IndCpaPublicKeyBytes-32;
+            int rhoLength = 32; 
+
+            m_s = Arrays.CopyOfRange(sk,0,sLength);
+            m_t = Arrays.CopyOfRange(sk,sLength,sLength+tLength);
+            m_rho = Arrays.CopyOfRange(sk,sLength+tLength,sLength+tLength+rhoLength);
+            m_hpk = Arrays.CopyOfRange(sk,sLength+tLength+nonceLength,sLength+tLength+nonceLength+rhoLength);
+            m_nonce = Arrays.CopyOfRange(sk,sLength+tLength+rhoLength+hpkLength,sk.Length);
+        }
+
 
         public byte[] GetEncoded()
         {

@@ -1,4 +1,5 @@
 using Org.BouncyCastle.Utilities;
+using Org.BouncyCastle.Security;
 
 namespace Org.BouncyCastle.Pqc.Crypto.Crystals.Dilithium
 {
@@ -24,6 +25,26 @@ namespace Org.BouncyCastle.Pqc.Crypto.Crystals.Dilithium
             this.s2 = Arrays.Clone(s2);
             this.t0 = Arrays.Clone(t0);
             this.t1 = Arrays.Clone(t1);
+        }
+
+        public DilithiumPrivateKeyParameters(DilithiumParameters parameters,  byte[] sk,SecureRandom random)
+            : base(true, parameters)
+        {
+            DilithiumEngine engine = parameters.GetEngine(random);
+            int rhoLength =  DilithiumEngine.SeedBytes;
+            int kLength = DilithiumEngine.SeedBytes;
+            int trLength = DilithiumEngine.SeedBytes;
+            int s1Length = engine.L * engine.PolyEtaPackedBytes;
+            int s2Length = engine.K * engine.PolyEtaPackedBytes;
+            int t0Length = engine.K * DilithiumEngine.PolyT0PackedBytes;
+
+            this.rho = Arrays.CopyOfRange(sk,0,rhoLength);
+            this.k = Arrays.CopyOfRange(sk,rhoLength,rhoLength+kLength);
+            this.tr = Arrays.CopyOfRange(sk,rhoLength+kLength,rhoLength+kLength+trLength);
+            this.s1 = Arrays.CopyOfRange(sk,rhoLength+kLength+trLength,rhoLength+kLength+trLength+s1Length);
+            this.s2 = Arrays.CopyOfRange(sk,rhoLength+kLength+trLength+s1Length,rhoLength+kLength+trLength+s1Length+s2Length);
+            this.t0 = Arrays.CopyOfRange(sk,rhoLength+kLength+trLength+s1Length+s2Length,rhoLength+kLength+trLength+s1Length+s2Length+t0Length);
+            this.t1 = Arrays.CopyOfRange(sk,rhoLength+kLength+trLength+s1Length+s2Length+t0Length,sk.Length);
         }
         
         public byte[] Rho => Arrays.Clone(rho);
