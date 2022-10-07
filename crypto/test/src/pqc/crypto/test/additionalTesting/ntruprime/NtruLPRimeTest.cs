@@ -23,7 +23,7 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             { "addRand857.rsp", NtruLPRimeParameters.ntrulpr857 },
             { "addRand953.rsp", NtruLPRimeParameters.ntrulpr953 },
             { "addRand1013.rsp", NtruLPRimeParameters.ntrulpr1013 },
-            { "addRand1277.rsp", NtruLPRimeParameters.ntrulpr1277 }, //fail (error caused by HEX?)
+            { "addRand1277.rsp", NtruLPRimeParameters.ntrulpr1277 },
         };
         private static readonly List<string> LPRaddRandTestVectorFileNames = new List<string>(LPRaddRandTestVectors.Keys);
 
