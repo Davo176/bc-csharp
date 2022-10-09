@@ -24,11 +24,28 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
         private static readonly List<string> fullTestVectorFileNames = new List<string>(fullTestVectors.Keys);
 
+        private static readonly Dictionary<string, NtruParameters> addRandTestVectors = new Dictionary<string, NtruParameters>()
+        {
+            { "addRand_935.rsp", NtruParameters.NtruHps2048509 },
+            { "addRand_1234.rsp", NtruParameters.NtruHps2048677 },
+            { "addRand_1590.rsp", NtruParameters.NtruHps4096821 },
+            { "addRand_1450.rsp", NtruParameters.NtruHrss701 },
+        };
+
+        private static readonly List<string> addRandTestVectorFileNames = new List<string>(addRandTestVectors.Keys);
+
         [TestCaseSource(nameof(fullTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
         {
             RunTest(testVectorFile,"pqc.ntru.",FullTests,fullTestVectors);
+        }
+
+        [TestCaseSource(nameof(addRandTestVectorFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void TestAddRandVectors(string testVectorFile)
+        {
+            RunTest(testVectorFile,"pqc.ntru.addRand.",FullTests,addRandTestVectors);
         }
 
         private static readonly Dictionary<string, NtruParameters> encapTestVectors = new Dictionary<string, NtruParameters>()
