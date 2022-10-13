@@ -40,6 +40,30 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> decapTestVectorFileNames = new List<string>(decapTestVectors.Keys);
 
+        private static readonly Dictionary<string, SABERParameters> interopKgVectors = new Dictionary<string, SABERParameters>()
+        {
+             { "keypairs_csharp_1568", SABERParameters.lightsaberkem256r3 },
+             { "keypairs_csharp_2304", SABERParameters.saberkem256r3 },
+             { "keypairs_csharp_3040", SABERParameters.firesaberkem256r3 },
+        };
+        private static readonly List<string> interopKgVectorsFileNames = new List<string>(interopKgVectors.Keys);
+
+        private static readonly Dictionary<string, SABERParameters> interopEncapVectors = new Dictionary<string, SABERParameters>()
+        {
+             { "keypairs_ref_1568.rsp", SABERParameters.lightsaberkem256r3 },
+             { "keypairs_ref_2304.rsp", SABERParameters.saberkem256r3 },
+             { "keypairs_ref_3040.rsp", SABERParameters.firesaberkem256r3 },
+        };
+        private static readonly List<string> interopEncapVectorsFileNames = new List<string>(interopEncapVectors.Keys);
+
+        private static readonly Dictionary<string, SABERParameters> interopDecapVectors = new Dictionary<string, SABERParameters>()
+        {
+             { "encapsulation_csharp_ref_1568.rsp", SABERParameters.lightsaberkem256r3 },
+             { "encapsulation_csharp_ref_2304.rsp", SABERParameters.saberkem256r3 },
+             { "encapsulation_csharp_ref_3040.rsp", SABERParameters.firesaberkem256r3 },
+        };
+        private static readonly List<string> interopDecapVectorsFileNames = new List<string>(interopDecapVectors.Keys);
+
         [TestCaseSource(nameof(fullTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string TestVectorFile)
@@ -60,6 +84,28 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         {
             RunTest(decapTestVectorFile,"pqc.saber.decapTesting.",DecapTests,decapTestVectors);
         }
+
+        [TestCaseSource(nameof(interopKgVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateKeypairs(string interopFile)
+        {
+            CreateKeypairs(interopFile,interopKgVectors);
+        }
+
+        [TestCaseSource(nameof(interopEncapVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateEncaps(string interopFile)
+        {
+            RunTest(interopFile,"pqc.saber.interoperability.",CreateEncaps,interopEncapVectors);
+        }
+
+        [TestCaseSource(nameof(interopDecapVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void checkDecaps(string interopFile)
+        {
+            RunTest(interopFile,"pqc.saber.interoperability.",DecapTests,interopDecapVectors);
+        }
+
 
         private static void EncapTests(string name, IDictionary<string, string> buf,Dictionary<string, SABERParameters> paramDict)
         {
@@ -85,7 +131,6 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         private static void DecapTests(string name, IDictionary<string, string> buf,Dictionary<string, SABERParameters> paramDict)
         {
             String count = buf["count"];
-            byte[] seed = Hex.Decode(buf["seed"]); // seed for SABER secure random
             byte[] expectedSK = Hex.Decode(buf["sk"]); // private key
             byte[] expectedCT = Hex.Decode(buf["ct"]); // ciphertext
             byte[] expectedSS = Hex.Decode(buf["ss"]); // session key
@@ -140,6 +185,78 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             Assert.AreEqual(decapsulatedSecret.Length * 8, parameters.DefaultKeySize);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, 0, decapsulatedSecret.Length, expectedSS, 0, decapsulatedSecret.Length),"FAILED session dec: " + name + " " + count);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, secret),"FAILED session int: " + name + " " + count);
+        }
+
+        public static void CreateKeypairs(string name,Dictionary<string, SABERParameters> paramDict){
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+            byte[] personalisation = new byte[48];
+            for (int i=48;i>0;i--){
+                personalisation[48-i]=Convert.ToByte(i);
+            }
+
+            NistSecureRandom random = new NistSecureRandom(entropy_input, personalisation);
+            SABERParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/saber/interoperability/"+name+".rsp";
+
+            string f1Contents = "";
+
+            for (int i=0;i<100;i++){
+                f1Contents += "count = "+i+"\n";
+                random.NextBytes(seed,0,48);
+                f1Contents += "seed = " + Hex.ToHexString(seed)+"\n";
+                SABERKeyPairGenerator keysGenerator = new SABERKeyPairGenerator();
+                SABERKeyGenerationParameters generationParams = new SABERKeyGenerationParameters(random, parameters);
+                keysGenerator.Init(generationParams);
+                AsymmetricCipherKeyPair keys = keysGenerator.GenerateKeyPair();
+
+                SABERPublicKeyParameters publicKeyParams = (SABERPublicKeyParameters)keys.Public;
+                SABERPrivateKeyParameters privateKeyParams = (SABERPrivateKeyParameters)keys.Private;
+                f1Contents += "pk = " + Hex.ToHexString(publicKeyParams.GetEncoded())+"\n";
+                f1Contents += "sk = " + Hex.ToHexString(privateKeyParams.GetEncoded())+"\n";
+                f1Contents +="\n";
+            }
+            File.WriteAllText(f1,f1Contents);
+        }
+
+        public static void CreateEncaps(string name, IDictionary<string, string> buf,Dictionary<string, SABERParameters> paramDict){
+            String count = buf["count"];
+            byte[] expectedPK = Hex.Decode(buf["pk"]);
+            
+        
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+
+            SABERParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/saber/interoperability/encapsulation_csharp_"+name.Substring("keypairs_ref_".Length,4)+".rsp";
+
+            string f1Contents = "";
+            if (count=="0"){
+                File.WriteAllText(f1,f1Contents);
+            }
+  
+            f1Contents += "count = "+buf["count"]+"\n";
+            NistSecureRandom random = new NistSecureRandom(entropy_input,null);
+            random.NextBytes(seed,0,48);
+            
+            SABERPublicKeyParameters publicKeyParams = new SABERPublicKeyParameters(parameters,expectedPK);
+            f1Contents += "pk = " + buf["pk"] + "\n";
+            f1Contents += "sk = " + buf["sk"] + "\n";
+            SABERKEMGenerator encapsulationGenerator = new SABERKEMGenerator(random);
+            ISecretWithEncapsulation encapsulatedSecret = encapsulationGenerator.GenerateEncapsulated(publicKeyParams);
+            byte[] generatedCipher = encapsulatedSecret.GetEncapsulation();
+            byte[] secret = encapsulatedSecret.GetSecret();
+            f1Contents += "ct = " + Hex.ToHexString(generatedCipher) + "\n";
+            f1Contents += "ss = " + Hex.ToHexString(secret) + "\n";
+            f1Contents +="\n";
+
+            File.AppendAllText(f1,f1Contents);
         }
 
         public static void RunTest(string name,string partialLocation, Action<string,Dictionary<string,string>,Dictionary<string,SABERParameters>> testFunc,Dictionary<string,SABERParameters> parameters)
