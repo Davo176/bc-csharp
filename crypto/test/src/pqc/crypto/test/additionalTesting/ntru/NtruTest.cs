@@ -73,11 +73,59 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> decapTestVectorFileNames = new List<string>(decapTestVectors.Keys);
 
+        private static readonly Dictionary<string, NtruParameters> interopKgVectors = new Dictionary<string, NtruParameters>()
+        {
+             { "keypairs_csharp_935", NtruParameters.NtruHps2048509 },
+             { "keypairs_csharp_1234", NtruParameters.NtruHps2048677 },
+             { "keypairs_csharp_1590", NtruParameters.NtruHps4096821 },
+             { "keypairs_csharp_1450", NtruParameters.NtruHrss701 }
+        };
+        private static readonly List<string> interopKgVectorsFileNames = new List<string>(interopKgVectors.Keys);
+
+        private static readonly Dictionary<string, NtruParameters> interopEncapVectors = new Dictionary<string, NtruParameters>()
+        {
+             { "keypairs_ref_935.rsp", NtruParameters.NtruHps2048509 },
+             { "keypairs_ref_1234.rsp", NtruParameters.NtruHps2048677 },
+             { "keypairs_ref_1590.rsp", NtruParameters.NtruHps4096821 },
+             { "keypairs_ref_1450.rsp", NtruParameters.NtruHrss701 },
+        };
+        private static readonly List<string> interopEncapVectorsFileNames = new List<string>(interopEncapVectors.Keys);
+
+        private static readonly Dictionary<string, NtruParameters> interopDecapVectors = new Dictionary<string, NtruParameters>()
+        {
+             { "encapsulation_csharp_ref_935.rsp", NtruParameters.NtruHps2048509 },
+             { "encapsulation_csharp_ref_1234.rsp", NtruParameters.NtruHps2048677 },
+             { "encapsulation_csharp_ref_1590.rsp", NtruParameters.NtruHps4096821 },
+             { "encapsulation_csharp_ref_1450.rsp", NtruParameters.NtruHrss701 },
+        };
+        private static readonly List<string> interopDecapVectorsFileNames = new List<string>(interopDecapVectors.Keys);
+
         [TestCaseSource(nameof(decapTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestDecapVectors(string decapTestVectorFile)
         {
             RunTest(decapTestVectorFile,"pqc.ntru.decapTesting.",DecapTests,decapTestVectors);
+        }
+
+        [TestCaseSource(nameof(interopKgVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateKeypairs(string interopFile)
+        {
+            CreateKeypairs(interopFile,interopKgVectors);
+        }
+
+        [TestCaseSource(nameof(interopEncapVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateEncaps(string interopFile)
+        {
+            RunTest(interopFile,"pqc.ntru.interoperability.",CreateEncaps,interopEncapVectors);
+        }
+
+        [TestCaseSource(nameof(interopDecapVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void checkDecaps(string interopFile)
+        {
+            RunTest(interopFile,"pqc.ntru.interoperability.",DecapTests,interopDecapVectors);
         }
 
         private static void EncapTests(string name, IDictionary<string, string> buf,Dictionary<string, NtruParameters> paramDict)
@@ -107,12 +155,10 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         private static void DecapTests(string name, IDictionary<string, string> buf,Dictionary<string, NtruParameters> paramDict)
         {
             String count = buf["count"];
-            byte[] seed = Hex.Decode(buf["seed"]);
             byte[] expectedSK = Hex.Decode(buf["sk"]);
             byte[] expectedCT = Hex.Decode(buf["ct"]);
             byte[] expectedSS = Hex.Decode(buf["ss"]);
 
-            NistSecureRandom random = new NistSecureRandom(seed, null);
             NtruParameters parameters = paramDict[name];
 
             NtruPrivateKeyParameters skParams = new NtruPrivateKeyParameters(parameters, expectedSK);
@@ -166,6 +212,78 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             Assert.True(Arrays.AreEqual(decapsulatedSecret, 0, decapsulatedSecret.Length, expectedSS, 0, decapsulatedSecret.Length),"FAILED session dec: " + name + " " + count);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, secret),"FAILED session int: " + name + " " + count);
 
+        }
+
+        public static void CreateKeypairs(string name,Dictionary<string, NtruParameters> paramDict){
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+            byte[] personalisation = new byte[48];
+            for (int i=48;i>0;i--){
+                personalisation[48-i]=Convert.ToByte(i);
+            }
+
+            NistSecureRandom random = new NistSecureRandom(entropy_input, personalisation);
+            NtruParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/ntru/interoperability/"+name+".rsp";
+
+            string f1Contents = "";
+
+            for (int i=0;i<100;i++){
+                f1Contents += "count = "+i+"\n";
+                random.NextBytes(seed,0,48);
+                f1Contents += "seed = " + Hex.ToHexString(seed)+"\n";
+                NtruKeyPairGenerator keysGenerator = new NtruKeyPairGenerator();
+                NtruKeyGenerationParameters generationParams = new NtruKeyGenerationParameters(random, parameters);
+                keysGenerator.Init(generationParams);
+                AsymmetricCipherKeyPair keys = keysGenerator.GenerateKeyPair();
+
+                NtruPublicKeyParameters publicKeyParams = (NtruPublicKeyParameters)keys.Public;
+                NtruPrivateKeyParameters privateKeyParams = (NtruPrivateKeyParameters)keys.Private;
+                f1Contents += "pk = " + Hex.ToHexString(publicKeyParams.GetEncoded())+"\n";
+                f1Contents += "sk = " + Hex.ToHexString(privateKeyParams.GetEncoded())+"\n";
+                f1Contents +="\n";
+            }
+            File.WriteAllText(f1,f1Contents);
+        }
+
+        public static void CreateEncaps(string name, IDictionary<string, string> buf,Dictionary<string, NtruParameters> paramDict){
+            String count = buf["count"];
+            byte[] expectedPK = Hex.Decode(buf["pk"]);
+            
+        
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+
+            NtruParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/ntru/interoperability/encapsulation_csharp_"+name.Substring("keypairs_ref_".Length,4)+".rsp";
+
+            string f1Contents = "";
+            if (count=="0"){
+                File.WriteAllText(f1,f1Contents);
+            }
+  
+            f1Contents += "count = "+buf["count"]+"\n";
+            NistSecureRandom random = new NistSecureRandom(entropy_input,null);
+            random.NextBytes(seed,0,48);
+            
+            NtruPublicKeyParameters publicKeyParams = new NtruPublicKeyParameters(parameters,expectedPK);
+            f1Contents += "pk = " + buf["pk"] + "\n";
+            f1Contents += "sk = " + buf["sk"] + "\n";
+            NtruKemGenerator encapsulationGenerator = new NtruKemGenerator(random);
+            ISecretWithEncapsulation encapsulatedSecret = encapsulationGenerator.GenerateEncapsulated(publicKeyParams);
+            byte[] generatedCipher = encapsulatedSecret.GetEncapsulation();
+            byte[] secret = encapsulatedSecret.GetSecret();
+            f1Contents += "ct = " + Hex.ToHexString(generatedCipher) + "\n";
+            f1Contents += "ss = " + Hex.ToHexString(secret) + "\n";
+            f1Contents +="\n";
+
+            File.AppendAllText(f1,f1Contents);
         }
 
         public static void RunTest(string name,string partialLocation, Action<string,Dictionary<string,string>,Dictionary<string,NtruParameters>> testFunc,Dictionary<string,NtruParameters> parameters)

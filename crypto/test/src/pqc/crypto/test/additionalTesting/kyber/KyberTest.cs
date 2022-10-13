@@ -103,7 +103,7 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
         [TestCaseSource(nameof(interopDecapVectorsFileNames))]
         [Parallelizable(ParallelScope.All)]
-        public void runCreateDecaps(string interopFile)
+        public void checkDecaps(string interopFile)
         {
             RunTest(interopFile,"pqc.crystals.kyber.interoperability.",testDecap,interopDecapVectors);
         }
