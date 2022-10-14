@@ -60,6 +60,30 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> addDecapsTestVectorFileNames = new List<string>(addDecapsTestVectors.Keys);
 
+        private static readonly Dictionary<string, FrodoParameters> interopKgVectors = new Dictionary<string, FrodoParameters>()
+        {
+             { "keypairs_csharp_19888", FrodoParameters.frodokem19888r3 },
+             { "keypairs_csharp_31296", FrodoParameters.frodokem31296r3 },
+             { "keypairs_csharp_43088", FrodoParameters.frodokem43088r3 }
+        };
+        private static readonly List<string> interopKgVectorsFileNames = new List<string>(interopKgVectors.Keys);
+
+        private static readonly Dictionary<string, FrodoParameters> interopEncapVectors = new Dictionary<string, FrodoParameters>()
+        {
+             { "keypairs_ref_19888.rsp", FrodoParameters.frodokem19888r3 },
+             { "keypairs_ref_31296.rsp", FrodoParameters.frodokem31296r3 },
+             { "keypairs_ref_43088.rsp", FrodoParameters.frodokem43088r3 },
+        };
+        private static readonly List<string> interopEncapVectorsFileNames = new List<string>(interopEncapVectors.Keys);
+
+        private static readonly Dictionary<string, FrodoParameters> interopDecapVectors = new Dictionary<string, FrodoParameters>()
+        {
+             { "encapsulation_csharp_ref_19888.rsp", FrodoParameters.frodokem19888r3 },
+             { "encapsulation_csharp_ref_31296.rsp", FrodoParameters.frodokem31296r3 },
+             { "encapsulation_csharp_ref_43088.rsp", FrodoParameters.frodokem43088r3 }
+        };
+        private static readonly List<string> interopDecapVectorsFileNames = new List<string>(interopDecapVectors.Keys);
+
         [TestCaseSource(nameof(fullTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
@@ -88,6 +112,27 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             RunTest(testVectorFile,"pqc.frodo.addDecapsTest.",DecapTests,addDecapsTestVectors);
         }
 
+        [TestCaseSource(nameof(interopKgVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateKeypairs(string interopFile)
+        {
+            CreateKeypairs(interopFile,interopKgVectors);
+        }
+
+        [TestCaseSource(nameof(interopEncapVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateEncaps(string interopFile)
+        {
+            RunTest(interopFile,"pqc.frodo.interoperability.",CreateEncaps,interopEncapVectors);
+        }
+
+        [TestCaseSource(nameof(interopDecapVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void checkDecaps(string interopFile)
+        {
+            RunTest(interopFile,"pqc.frodo.interoperability.",DecapTests,interopDecapVectors);
+        }
+
         private static void EncapTests(string name, IDictionary<string, string> buf,Dictionary<string, FrodoParameters> paramDict)
         {
             String count = buf["count"];
@@ -114,7 +159,6 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         private static void DecapTests(string name, IDictionary<string, string> buf,Dictionary<string, FrodoParameters> paramDict)
         {
             String count = buf["count"];
-            byte[] seed = Hex.Decode(buf["seed"]); // seed for nist secure random
             byte[] sk = Hex.Decode(buf["sk"]);     // private key
             byte[] ct = Hex.Decode(buf["ct"]);     // ciphertext
             byte[] expectedSS = Hex.Decode(buf["ss"]);     // session key
@@ -126,9 +170,6 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             // Decapsulation
             FrodoKEMExtractor frodoDecCipher = new FrodoKEMExtractor(privateKeyParams);
             byte[] decapsulatedSecret = frodoDecCipher.ExtractSecret(ct);
-
-            Console.WriteLine(Hex.ToHexString(decapsulatedSecret));
-            Console.WriteLine(Hex.ToHexString(expectedSS));
 
             Assert.AreEqual(decapsulatedSecret.Length * 8, parameters.DefaultKeySize);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, expectedSS),"FAILED session dec: " + name + " " + count);
@@ -177,6 +218,78 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
             Assert.AreEqual(decapsulatedSecret.Length * 8, parameters.DefaultKeySize);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, expectedSS),"FAILED session dec: " + name + " " + count);
             Assert.True(Arrays.AreEqual(decapsulatedSecret, secret),"FAILED session int: " + name + " " + count);
+        }
+
+        public static void CreateKeypairs(string name,Dictionary<string, FrodoParameters> paramDict){
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+            byte[] personalisation = new byte[48];
+            for (int i=48;i>0;i--){
+                personalisation[48-i]=Convert.ToByte(i);
+            }
+
+            NistSecureRandom random = new NistSecureRandom(entropy_input, personalisation);
+            FrodoParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/frodo/interoperability/"+name+".rsp";
+
+            string f1Contents = "";
+
+            for (int i=0;i<100;i++){
+                f1Contents += "count = "+i+"\n";
+                random.NextBytes(seed,0,48);
+                f1Contents += "seed = " + Hex.ToHexString(seed)+"\n";
+                FrodoKeyPairGenerator keysGenerator = new FrodoKeyPairGenerator();
+                FrodoKeyGenerationParameters generationParams = new FrodoKeyGenerationParameters(random, parameters);
+                keysGenerator.Init(generationParams);
+                AsymmetricCipherKeyPair keys = keysGenerator.GenerateKeyPair();
+
+                FrodoPublicKeyParameters publicKeyParams = (FrodoPublicKeyParameters)keys.Public;
+                FrodoPrivateKeyParameters privateKeyParams = (FrodoPrivateKeyParameters)keys.Private;
+                f1Contents += "pk = " + Hex.ToHexString(publicKeyParams.GetEncoded())+"\n";
+                f1Contents += "sk = " + Hex.ToHexString(privateKeyParams.GetEncoded())+"\n";
+                f1Contents +="\n";
+            }
+            File.WriteAllText(f1,f1Contents);
+        }
+
+        public static void CreateEncaps(string name, IDictionary<string, string> buf,Dictionary<string, FrodoParameters> paramDict){
+            String count = buf["count"];
+            byte[] expectedPK = Hex.Decode(buf["pk"]);
+            
+        
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+
+            FrodoParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/frodo/interoperability/encapsulation_csharp_"+name.Substring("keypairs_ref_".Length,5)+".rsp";
+
+            string f1Contents = "";
+            if (count=="0"){
+                File.WriteAllText(f1,f1Contents);
+            }
+  
+            f1Contents += "count = "+buf["count"]+"\n";
+            NistSecureRandom random = new NistSecureRandom(entropy_input,null);
+            random.NextBytes(seed,0,48);
+            
+            FrodoPublicKeyParameters publicKeyParams = new FrodoPublicKeyParameters(parameters,expectedPK);
+            f1Contents += "pk = " + buf["pk"] + "\n";
+            f1Contents += "sk = " + buf["sk"] + "\n";
+            FrodoKEMGenerator encapsulationGenerator = new FrodoKEMGenerator(random);
+            ISecretWithEncapsulation encapsulatedSecret = encapsulationGenerator.GenerateEncapsulated(publicKeyParams);
+            byte[] generatedCipher = encapsulatedSecret.GetEncapsulation();
+            byte[] secret = encapsulatedSecret.GetSecret();
+            f1Contents += "ct = " + Hex.ToHexString(generatedCipher) + "\n";
+            f1Contents += "ss = " + Hex.ToHexString(secret) + "\n";
+            f1Contents +="\n";
+
+            File.AppendAllText(f1,f1Contents);
         }
 
         public static void RunTest(string name,string partialLocation, Action<string,Dictionary<string,string>,Dictionary<string,FrodoParameters>> testFunc,Dictionary<string,FrodoParameters> parameters)
