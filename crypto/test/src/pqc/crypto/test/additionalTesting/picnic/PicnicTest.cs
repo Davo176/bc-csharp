@@ -50,6 +50,41 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         };
         private static readonly List<string> addRandTestVectorFileNames = new List<string>(addRandTestVectors.Keys);
 
+        private static readonly Dictionary<string, PicnicParameters> interopKgVectors = new Dictionary<string, PicnicParameters>()
+        {
+             { "3/keypairs_csharp_L1.rsp", PicnicParameters.picnic3l1 },
+             { "3/keypairs_csharp_L3.rsp", PicnicParameters.picnic3l3 },
+             { "3/keypairs_csharp_L5.rsp", PicnicParameters.picnic3l5 },
+             { "fs/keypairs_csharp_L1.rsp", PicnicParameters.picnicl1fs },
+             { "fs/keypairs_csharp_L3.rsp", PicnicParameters.picnicl3fs },
+             { "fs/keypairs_csharp_L5.rsp", PicnicParameters.picnicl5fs },
+             { "full/keypairs_csharp_L1.rsp", PicnicParameters.picnicl1full },
+             { "full/keypairs_csharp_L3.rsp", PicnicParameters.picnicl3full },
+             { "full/keypairs_csharp_L5.rsp", PicnicParameters.picnicl5full },
+             { "ur/keypairs_csharp_L1.rsp", PicnicParameters.picnicl1ur },
+             { "ur/keypairs_csharp_L3.rsp", PicnicParameters.picnicl3ur },
+             { "ur/keypairs_csharp_L5.rsp", PicnicParameters.picnicl5ur },
+        };
+        private static readonly List<string> interopKgVectorsFileNames = new List<string>(interopKgVectors.Keys);
+
+        private static readonly Dictionary<string, PicnicParameters> interopSignedVectors = new Dictionary<string, PicnicParameters>()
+        {
+             { "3.keypairs_ref_L1.rsp", PicnicParameters.picnic3l1 },
+             { "3.keypairs_ref_L3.rsp", PicnicParameters.picnic3l3 },
+             { "3.keypairs_ref_L5.rsp", PicnicParameters.picnic3l5 },
+             { "fs.keypairs_ref_L1.rsp", PicnicParameters.picnicl1fs },
+             { "fs.keypairs_ref_L3.rsp", PicnicParameters.picnicl3fs },
+             { "fs.keypairs_ref_L5.rsp", PicnicParameters.picnicl5fs },
+             { "full.keypairs_ref_L1.rsp", PicnicParameters.picnicl1full },
+             { "full.keypairs_ref_L3.rsp", PicnicParameters.picnicl3full },
+             { "full.keypairs_ref_L5.rsp", PicnicParameters.picnicl5full },
+             { "ur.keypairs_ref_L1.rsp", PicnicParameters.picnicl1ur },
+             { "ur.keypairs_ref_L3.rsp", PicnicParameters.picnicl3ur },
+             { "ur.keypairs_ref_L5.rsp", PicnicParameters.picnicl5ur },
+        };
+        private static readonly List<string> interopSignedVectorsFileNames = new List<string>(interopSignedVectors.Keys);
+
+
         [TestCaseSource(nameof(fullTestVectorFileNames))]
         [Parallelizable(ParallelScope.All)]
         public void TestFullVectors(string testVectorFile)
@@ -62,6 +97,102 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         public void TestAddRandVectors(string testVectorFile)
         {
             RunTest(testVectorFile,"pqc.picnic.addRandTest.",FullTests,addRandTestVectors);
+        }
+
+        [TestCaseSource(nameof(interopKgVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateKeypairs(string interopFile)
+        {
+            CreateKeypairs(interopFile,interopKgVectors);
+        }
+
+        [TestCaseSource(nameof(interopSignedVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCreateSigned(string interopFile)
+        {
+            RunTest(interopFile,"pqc.picnic.interoperability.",CreateSigned,interopSignedVectors);
+        }
+
+        public static void CreateSigned(string name, IDictionary<string, string> buf,Dictionary<string, PicnicParameters> paramDict){
+            String count = buf["count"];
+            byte[] sk = Hex.Decode(buf["sk"]);
+            byte[] message = Hex.Decode(buf["msg"]);
+            
+        
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+
+            PicnicParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/picnic/interoperability/"+name.Substring(0,name.Length-"keypairs_ref_XX.rsp".Length-1)+"/signed_csharp_"+name.Substring(name.Length-6,2)+".rsp";
+            Console.WriteLine(f1);
+            string f1Contents = "";
+            if (count=="0"){
+                File.WriteAllText(f1,f1Contents);
+            }
+  
+            f1Contents += "count = "+buf["count"]+"\n";
+            f1Contents += "pk = "+buf["pk"]+"\n";
+            NistSecureRandom random = new NistSecureRandom(entropy_input,null);
+            random.NextBytes(seed,0,48);
+
+            PicnicPrivateKeyParameters privateKeyParams = new PicnicPrivateKeyParameters(parameters,sk);
+            PicnicSigner signer = new PicnicSigner(random);
+
+            signer.Init(true,privateKeyParams);
+            
+            byte[] sigGenerated = signer.GenerateSignature(message);
+            byte[] attachedSig = Arrays.ConcatenateAll(UInt32_To_LE((uint)sigGenerated.Length),message,sigGenerated);
+            f1Contents += "mlen = " + buf["mlen"] + "\n";
+            f1Contents += "msg = " + buf["msg"] + "\n";
+            f1Contents += "smlen = " + attachedSig.Length.ToString() + "\n";
+            f1Contents += "sm = " + Hex.ToHexString(attachedSig) + "\n";
+            
+            f1Contents +="\n";
+
+            File.AppendAllText(f1,f1Contents);
+        }
+
+        public static void CreateKeypairs(string name,Dictionary<string, PicnicParameters> paramDict){
+            byte[] seed = new byte[48];
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+            byte[] personalisation = new byte[48];
+            for (int i=48;i>0;i--){
+                personalisation[48-i]=Convert.ToByte(i);
+            }
+
+            NistSecureRandom random = new NistSecureRandom(entropy_input, personalisation);
+            PicnicParameters parameters = paramDict[name];
+            string f1 = "../../../data/pqc/picnic/interoperability/"+name;
+
+            string f1Contents = "";
+
+            for (int i=0;i<100;i++){
+                f1Contents += "count = "+i+"\n";
+                random.NextBytes(seed,0,48);
+                int messageLength = 33*(i+1);
+                byte[] message = new byte[messageLength];
+                f1Contents += "seed = " + Hex.ToHexString(seed)+"\n";
+                PicnicKeyPairGenerator keysGenerator = new PicnicKeyPairGenerator();
+                PicnicKeyGenerationParameters generationParams = new PicnicKeyGenerationParameters(random, parameters);
+                keysGenerator.Init(generationParams);
+                AsymmetricCipherKeyPair keys = keysGenerator.GenerateKeyPair();
+                random.NextBytes(message,0,messageLength);
+
+                PicnicPublicKeyParameters publicKeyParams = (PicnicPublicKeyParameters)keys.Public;
+                PicnicPrivateKeyParameters privateKeyParams = (PicnicPrivateKeyParameters)keys.Private;
+                f1Contents += "mlen = " + messageLength.ToString()+"\n";
+                f1Contents += "msg = " + Hex.ToHexString(message)+"\n";
+                f1Contents += "pk = " + Hex.ToHexString(publicKeyParams.GetEncoded())+"\n";
+                f1Contents += "sk = " + Hex.ToHexString(privateKeyParams.GetEncoded())+"\n";
+                f1Contents +="\n";
+            }
+            File.WriteAllText(f1,f1Contents);
         }
 
         private static void FullTests(string name, IDictionary<string, string> buf,Dictionary<string, PicnicParameters> paramDict)
