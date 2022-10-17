@@ -20,6 +20,27 @@ namespace Org.BouncyCastle.Pqc.Crypto.Falcon
             this.pk = Arrays.Clone(pk_encoded);
         }
 
+        public FalconPrivateKeyParameters(FalconParameters parameters, byte[] pk_encoded)
+            : base(true, parameters)
+        {
+            int flen,glen,Flen;
+            if (parameters.Name=="falcon512"){
+                flen=384;
+                glen=384;
+                Flen=512;
+            }else{
+                flen=640;
+                glen=640;
+                Flen=1024;
+            }
+
+
+            this.f = Arrays.CopyOfRange(pk_encoded,0,flen);
+            this.g = Arrays.CopyOfRange(pk_encoded,flen,flen+glen);
+            this.F = Arrays.CopyOfRange(pk_encoded,flen+glen,flen+glen+Flen);
+            this.pk = Arrays.Clone(pk_encoded);
+        }
+
         public byte[] GetEncoded()
         {
             return Arrays.ConcatenateAll(f, g, F);
