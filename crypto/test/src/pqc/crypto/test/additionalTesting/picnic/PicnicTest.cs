@@ -52,9 +52,9 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
         private static readonly Dictionary<string, PicnicParameters> interopKgVectors = new Dictionary<string, PicnicParameters>()
         {
-             { "3/keypairs_csharp_L1.rsp", PicnicParameters.picnic3l1 },
-             { "3/keypairs_csharp_L3.rsp", PicnicParameters.picnic3l3 },
-             { "3/keypairs_csharp_L5.rsp", PicnicParameters.picnic3l5 },
+             { "three/keypairs_csharp_L1.rsp", PicnicParameters.picnic3l1 },
+             { "three/keypairs_csharp_L3.rsp", PicnicParameters.picnic3l3 },
+             { "three/keypairs_csharp_L5.rsp", PicnicParameters.picnic3l5 },
              { "fs/keypairs_csharp_L1.rsp", PicnicParameters.picnicl1fs },
              { "fs/keypairs_csharp_L3.rsp", PicnicParameters.picnicl3fs },
              { "fs/keypairs_csharp_L5.rsp", PicnicParameters.picnicl5fs },
@@ -69,9 +69,9 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
 
         private static readonly Dictionary<string, PicnicParameters> interopSignedVectors = new Dictionary<string, PicnicParameters>()
         {
-             { "3.keypairs_ref_L1.rsp", PicnicParameters.picnic3l1 },
-             { "3.keypairs_ref_L3.rsp", PicnicParameters.picnic3l3 },
-             { "3.keypairs_ref_L5.rsp", PicnicParameters.picnic3l5 },
+             { "three.keypairs_ref_L1.rsp", PicnicParameters.picnic3l1 },
+             { "three.keypairs_ref_L3.rsp", PicnicParameters.picnic3l3 },
+             { "three.keypairs_ref_L5.rsp", PicnicParameters.picnic3l5 },
              { "fs.keypairs_ref_L1.rsp", PicnicParameters.picnicl1fs },
              { "fs.keypairs_ref_L3.rsp", PicnicParameters.picnicl3fs },
              { "fs.keypairs_ref_L5.rsp", PicnicParameters.picnicl5fs },
@@ -83,6 +83,23 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
              { "ur.keypairs_ref_L5.rsp", PicnicParameters.picnicl5ur },
         };
         private static readonly List<string> interopSignedVectorsFileNames = new List<string>(interopSignedVectors.Keys);
+
+        private static readonly Dictionary<string, PicnicParameters> interopcheckSignedVectors = new Dictionary<string, PicnicParameters>()
+        {
+            //  { "three.signed_csharp_ref_L1.rsp", PicnicParameters.picnic3l1 },
+            //  { "three.signed_csharp_ref_L3.rsp", PicnicParameters.picnic3l3 },
+            //  { "three.signed_csharp_ref_L5.rsp", PicnicParameters.picnic3l5 },
+            //  { "fs.signed_csharp_ref_L1.rsp", PicnicParameters.picnicl1fs },
+            //  { "fs.signed_csharp_ref_L3.rsp", PicnicParameters.picnicl3fs },
+            //  { "fs.signed_csharp_ref_L5.rsp", PicnicParameters.picnicl5fs },
+            //  { "full.signed_csharp_ref_L1.rsp", PicnicParameters.picnicl1full },
+            //  { "full.signed_csharp_ref_L3.rsp", PicnicParameters.picnicl3full },
+            //  { "full.signed_csharp_ref_L5.rsp", PicnicParameters.picnicl5full },
+             { "ur.signed_csharp_ref_L1.rsp", PicnicParameters.picnicl1ur },
+             { "ur.signed_csharp_ref_L3.rsp", PicnicParameters.picnicl3ur },
+             { "ur.signed_csharp_ref_L5.rsp", PicnicParameters.picnicl5ur },
+        };
+        private static readonly List<string> interopcheckSignedVectorsFileNames = new List<string>(interopcheckSignedVectors.Keys);
 
 
         [TestCaseSource(nameof(fullTestVectorFileNames))]
@@ -111,6 +128,40 @@ namespace Org.BouncyCastle.Pqc.Crypto.Tests.additionalTests
         public void runCreateSigned(string interopFile)
         {
             RunTest(interopFile,"pqc.picnic.interoperability.",CreateSigned,interopSignedVectors);
+        }
+
+        [TestCaseSource(nameof(interopcheckSignedVectorsFileNames))]
+        [Parallelizable(ParallelScope.All)]
+        public void runCheckSigned(string interopFile)
+        {
+            RunTest(interopFile,"pqc.picnic.interoperability.",CheckSigned,interopcheckSignedVectors);
+        }
+
+        public static void CheckSigned(string name, IDictionary<string, string> buf,Dictionary<string, PicnicParameters> paramDict){
+            String count = buf["count"];
+            byte[] pk = Hex.Decode(buf["pk"]);
+            byte[] message = Hex.Decode(buf["msg"]);
+            byte[] sm = Hex.Decode(buf["sm"]);
+            int smlen = int.Parse(buf["smlen"]);
+            int mlen = int.Parse(buf["mlen"]);
+
+            byte[] entropy_input = new byte[48];
+            for (int i=0;i<48;i++){
+                entropy_input[i]=Convert.ToByte(i);
+            }
+
+            PicnicParameters parameters = paramDict[name];
+
+            NistSecureRandom random = new NistSecureRandom(entropy_input,null);
+
+            PicnicPublicKeyParameters publicKeyParams = new PicnicPublicKeyParameters(parameters,pk);
+            PicnicSigner verifier = new PicnicSigner(random);
+
+            verifier.Init(false,publicKeyParams);
+            
+            bool valid = verifier.VerifySignature(message,sm);
+            Assert.True(valid, "FAILED signature verify: " + name + " " + count);
+            
         }
 
         public static void CreateSigned(string name, IDictionary<string, string> buf,Dictionary<string, PicnicParameters> paramDict){
